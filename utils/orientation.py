@@ -21,9 +21,10 @@ def analyze_face_angle(image):
         dx = right_eye.x - left_eye.x
         dy = right_eye.y - left_eye.y
         angle = cv2.fastAtan2(dy, dx)
-        
         print(f"Estimated face yaw angle: {angle:.2f} degrees")
-        if 10 < angle < 170:
+        deviation_from_horizontal = min(abs(angle), abs(angle - 180), abs(angle - 360))
+
+        if deviation_from_horizontal > 15: 
             print("Face is turned. Try facing the camera more directly.")
             return "Face turned"
         else:
