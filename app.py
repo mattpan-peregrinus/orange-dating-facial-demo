@@ -1,3 +1,5 @@
+# Run to start the Flask application
+
 from flask import Flask, request, render_template, jsonify
 import cv2
 import numpy as np

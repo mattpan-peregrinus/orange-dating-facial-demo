@@ -1,3 +1,5 @@
+# Run to test utils functions
+
 from utils.image_loader import load_image
 from utils.face_detect import num_of_faces
 from utils.quality import check_blurriness, check_brightness

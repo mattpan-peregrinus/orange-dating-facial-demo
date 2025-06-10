@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Picture Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .preview-container {
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .score-excellent { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .score-good { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .score-poor { background: linear-gradient(135deg, #F44336, #D32F2F); }
+        
+        .analysis-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-good { background: #e8f5e8; color: #4CAF50; }
+        .status-warning { background: #fff3e0; color: #FF9800; }
+        .status-error { background: #ffebee; color: #F44336; }
+        
+        .recommendations {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .recommendations h3 {
+            color: #1976D2;
+            margin-bottom: 15px;
+        }
+        
+        .recommendations ul {
+            list-style: none;
+        }
+        
+        .recommendations li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .recommendations li:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+        
+        .loading {
+            display: none;
+            color: #667eea;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Profile Picture Analyzer</h1>
+        <p class="subtitle">Upload your photo and get instant feedback on quality, lighting, and more!</p>
+        
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload or drag & drop your image</div>
+            <p style="color: #999; font-size: 0.9em;">Supports JPG, PNG, GIF (max 16MB)</p>
+        </div>
+        
+        <input type="file" id="file-input" accept="image/*">
+        <button class="btn" onclick="document.getElementById('file-input').click()">Choose File</button>
+        
+        <div class="preview-container" id="preview-container">
+            <h3>Preview:</h3>
+            <img id="preview-image" class="preview-image" alt="Preview">
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Analyzing your image...
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="results" id="results">
+            <div class="score-circle" id="score-circle">
+                <span id="score-text">0%</span>
+            </div>
+            
+            <div class="analysis-details" id="analysis-details">
+                <div class="detail-item">
+                    <span>Number of Faces:</span>
+                    <span class="status-badge" id="face-status">-</span>
+                </div>
+                <div class="detail-item">
+                    <span>Image Sharpness:</span>
+                    <span class="status-badge" id="blur-status">-</span>
+                </div>
+                <div class="detail-item">
+                    <span>Lighting Quality:</span>
+                    <span class="status-badge" id="brightness-status">-</span>
+                </div>
+                <div class="detail-item">
+                    <span>Face Orientation:</span>
+                    <span class="status-badge" id="orientation-status">-</span>
+                </div>
+            </div>
+            
+            <div class="recommendations" id="recommendations">
+                <h3>📋 Recommendations:</h3>
+                <ul id="recommendations-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.querySelector('.upload-area');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload a valid image file.');
+                return;
+            }
+
+            // Validate file size (16MB limit)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File size must be less than 16MB.');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload and analyze
+            uploadImage(file);
+        }
+
+        function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            // Show loading state
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            error.style.display = 'none';
+
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResults(data);
+                }
+            })
+            .catch(err => {
+                loading.style.display = 'none';
+                showError('An error occurred while analyzing the image.');
+                console.error('Error:', err);
+            });
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+            results.style.display = 'none';
+        }
+
+        function showResults(data) {
+            results.style.display = 'block';
+            
+            // Update score
+            const scoreCircle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('score-text');
+            scoreText.textContent = data.overall_score + '%';
+            
+            // Set score color
+            scoreCircle.className = 'score-circle';
+            if (data.overall_score >= 75) {
+                scoreCircle.classList.add('score-excellent');
+            } else if (data.overall_score >= 50) {
+                scoreCircle.classList.add('score-good');
+            } else {
+                scoreCircle.classList.add('score-poor');
+            }
+            
+            // Update status badges
+            updateStatusBadge('face-status', data.face_count === 1 ? 'Perfect' : `${data.face_count || 0} faces`, data.face_count === 1);
+            updateStatusBadge('blur-status', data.blurriness, data.blurriness === 'Sharp');
+            updateStatusBadge('brightness-status', data.brightness, data.brightness === 'Good');
+            updateStatusBadge('orientation-status', data.orientation || 'N/A', data.orientation === 'Well aligned');
+            
+            // Update recommendations
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+        }
+
+        function updateStatusBadge(elementId, text, isGood) {
+            const element = document.getElementById(elementId);
+            element.textContent = text;
+            element.className = 'status-badge';
+            if (isGood) {
+                element.classList.add('status-good');
+            } else if (text === 'N/A' || text === '-') {
+                element.classList.add('status-warning');
+            } else {
+                element.classList.add('status-error');
+            }
+        }
+    </script>
+</body>
+</html>
