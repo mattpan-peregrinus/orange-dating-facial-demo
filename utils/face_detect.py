@@ -7,5 +7,7 @@ def num_of_faces(image):
     results = face_detection.process(image)
     if results.detections:
         print(f"Number of faces detected: {len(results.detections)}. We only want one face.")
+        return len(results.detections)
     else:
         print("No faces detected.")
+        return 0

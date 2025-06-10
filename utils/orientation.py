@@ -12,7 +12,7 @@ def analyze_face_angle(image):
         
         if not results.multi_face_landmarks:
             print("No faces detected for angle analysis.")
-            return 
+            return "No face detected"
         
         landmarks = results.multi_face_landmarks[0].landmark
         left_eye = landmarks[33]
@@ -25,5 +25,7 @@ def analyze_face_angle(image):
         print(f"Estimated face yaw angle: {angle:.2f} degrees")
         if 10 < angle < 170:
             print("Face is turned. Try facing the camera more directly.")
+            return "Face turned"
         else:
             print("Face is well aligned.")
+            return "Well aligned"
