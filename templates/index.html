@@ -255,7 +255,7 @@
             
             <div class="analysis-details" id="analysis-details">
                 <div class="detail-item">
-                    <span>Number of Faces:</span>
+                    <span>Photo Subject:</span>
                     <span class="status-badge" id="face-status">-</span>
                 </div>
                 <div class="detail-item">
@@ -392,7 +392,15 @@
             }
             
             // Update status badges
-            updateStatusBadge('face-status', data.face_count === 1 ? 'Perfect' : `${data.face_count || 0} faces`, data.face_count === 1);
+            let faceMessage;
+            if (data.face_count === 1) {
+                faceMessage = 'Solo Portrait';
+            } else if (data.face_count === 0) {
+                faceMessage = 'No Face Detected';
+            } else {
+                faceMessage = 'Multiple People';
+            }
+            updateStatusBadge('face-status', faceMessage, data.face_count === 1);
             updateStatusBadge('blur-status', data.blurriness, data.blurriness === 'Sharp');
             updateStatusBadge('brightness-status', data.brightness, data.brightness === 'Good');
             updateStatusBadge('orientation-status', data.orientation || 'N/A', data.orientation === 'Well aligned');

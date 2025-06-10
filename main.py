@@ -6,7 +6,7 @@ from utils.quality import check_blurriness, check_brightness
 from utils.orientation import analyze_face_angle
 
 if __name__ == "__main__":
-    image_path = '/Users/matthewpan/Desktop/me_5.jpg'
+    image_path = 'path/to/your/image.jpg'  
     image, rgb = load_image(image_path)
     num_of_faces(rgb)
     check_blurriness(image)
