@@ -29,7 +29,21 @@ Web application demo that analyzes profile pictures and provides actionable insi
    ```
 
    By navigating to ```http://localhost:8000```
-  
+
+## Parameter Tuning
+The `parameter_tuning.py` script helps optimize detection thresholds:
+
+1. Add test images to `test_images/` directory
+2. Run:
+   ```bash
+   python parameter_tuning.py
+   ```
+3. Script tests multiple thresholds:
+   - Blurriness: Laplacian variance [75-175]
+   - Brightness: HSV values [40-80] dark, [160-200] bright
+   - Face angle: Deviation from horizontal [5-25] degrees
+4. Results saved to JSON with timestamp
+5. Console output shows distribution of results per threshold
 
 ## Future Features
 - Smile detection
